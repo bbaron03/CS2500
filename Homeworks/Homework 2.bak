@@ -4,14 +4,14 @@
 ;; A PoundAmount is a postive real number
 ;; Interpretation: A PoundAmount is an amount of money in GBP
 ;; Examples:
-(define POUNDAMOUNT1 45)
-(define POUNDAMOUNT2 50)
+(define poundAmount1 10)
+(define poundAmount2 15.50)
 
 ;; A EuroAmount is a positive real number
 ;; Interpretation: A EuroAmount is an amount of money in Euros
 ;; Examples:
-(define EUROAMOUNT1 32)
-(define EUROAMOUNT2 36)
+(define euroAmount1 12.50)
+(define euroAmount2 5)
 
 ;; gbp->eur : PoundAmount -> EuroAmount
 ;; Converts GBP to Euros by using the given chart
@@ -24,55 +24,33 @@
 (check-expect (gbp->eur 20) 12)
 (check-expect (gbp->eur 25) 16)
 (check-expect (gbp->eur 40) 28)
-(check-expect (gbp->eur POUNDAMOUNT1) EUROAMOUNT1)
-(check-expect (gbp->eur POUNDAMOUNT2) EUROAMOUNT2)
 
 (define (gbp->eur poundAmt)
   (- (* 4/5 poundAmt) 4))
 
-;; Exercise 4 --------------------------------------------------
-
-; encoding: String -> String
-; Encodes a string by taking the capital first letter,
-; the number of letters between the first and last letter,
-; and the capital last letter
+;; Exercise 4
 (check-expect (encoding "Northeastern") "N10N")
 (check-expect (encoding "potter") "P4R")
 (check-expect (encoding "brendan") "B5N")
+
 
 (define (encoding word)
   (string-append (string-upcase (substring word 0 1 ))
                  (number->string (string-length (substring word 1 (- (string-length word) 1))))
                  (string-upcase (substring word (- (string-length word) 1) (string-length word)))))
 
-;; Exercise 5 --------------------------------------------------
-; A Year is a NaturalNumber
-; Interpretation: The year that is being tested for being a leap year
-; Examples
-(define YEAR1 2004)
-(define YEAR2 2008)
-(define YEAR3 1990)
-(define YEAR4 2000)
-; year-temp -> Year -> ?
-(define (year-temp year)
-  (cond [(string=? year YEAR1) ...]
-        [(string=? year YEAR2) ...]
-        [(string=? year YEAR3) ...]
-        [(string=? year YEAR4) ...]))
-        
-; leap-year: Year -> Boolean
-; Determines if a Year is a leap year or not
-(check-expect (leap-year? YEAR1) #true)
-(check-expect (leap-year? YEAR2) #true)
-(check-expect (leap-year? YEAR3) #false)
-(check-expect (leap-year? YEAR4) #true)
+;; Exercise 5
+(check-expect (leap-year? 2004) #true)
+(check-expect (leap-year? 2008) #true)
+(check-expect (leap-year? 1900) #false)
+(check-expect (leap-year? 2000) #true)
 
 (define (leap-year? year)
   (cond [(= (modulo year 400) 0) #true]
         [(and (= (modulo year 4) 0) (not (= (modulo year 100) 0))) #true]
         [else #false]))
 
-;; Exercise 6 --------------------------------------------------
+;; Exercise 6
 (require 2htdp/image)
 (require 2htdp/universe)
 
@@ -90,13 +68,12 @@
 
 (define (down-and-up t)
   (cond [(< (modulo t FULL-CYCLE) HALF-CYCLE) (place-image BALL X (+ Y0 (modulo t HALF-CYCLE)) BGD1)]
-        [(>= (modulo t FULL-CYCLE) HALF-CYCLE)
-         (place-image BALL X (- YF (modulo t HALF-CYCLE)) BGD2)]))
+        [(>= (modulo t FULL-CYCLE) HALF-CYCLE) (place-image BALL X (- YF (modulo t HALF-CYCLE)) BGD2)]))
  
 (animate down-and-up)
 
 
-;; Exercise 7, 8, 9, 10 --------------------------------------------------
+;; Exercise 7, 8, 9, 10
 ; A DSG (DiceShuffleGame) is a (make-dsg MaybeDice MaybeDice MaybeDice)
 (define-struct dsg [left middle right])
 ; and represents the three cups in a dice shuffle game, and what is under them
@@ -118,7 +95,7 @@
 ; maybeDice-temp: MaybeDice -> ?
 (define (maybeDice-temp maybeDice)
   (cond [(string=? maybeDice MAYBEDICE-F) ...]
-        [(number? maybeDice MAYBEDICE-4) ...]))
+        [(number? maybeDIce MAYBEDICE-4) ...]))
 
 ; A Guess is one of:
 ; - "left"
@@ -132,7 +109,7 @@
 
 ; guess-temp: Guess -> ?
 (define (guess-temp guess)
-  (cond [(string=?  guess GUESS-LEFT) ...]
+  (cond [(string=?  guess GUESS_LEFT) ...]
         [(string=?  guess GUESS-MIDDLE) ...]
         [(string=?  guess GUESS-RIGHT) ...]))
 
@@ -141,8 +118,8 @@
 (define (shuffle-right dsg)
   (make-dsg (dsg-right dsg) (dsg-left dsg) (dsg-middle dsg)))
 
-(check-expect (shuffle-right (make-dsg MAYBEDICE-F MAYBEDICE-4 MAYBEDICE-10))
-              (make-dsg MAYBEDICE-10 MAYBEDICE-F  MAYBEDICE-4))
+(check-expect (shuffle-right (make-dsg MAYBEDICE-F MAYBEDICE-4 MAYBEDICE))
+              (make-dsg maybeDice3 maybeDice1 maybeDice2))
 
 ; cup-value : DSG Guess -> MaybeDice value
 ; Outputs the value of the cup at
@@ -159,4 +136,4 @@
               123)
 
 
-;; Exercise 11-20 --------------------------------------------------
+;; Exercise 11-20
