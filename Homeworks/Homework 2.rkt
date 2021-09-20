@@ -7,11 +7,21 @@
 (define POUNDAMOUNT1 45)
 (define POUNDAMOUNT2 50)
 
+; pound-temp: PoundAmount -> ?
+(define (pound-temp pound-amount)
+  (cond [(= pound-amount POUNDAMOUNT1) ...]
+        [(= pound-amount POUNDAMOUNT2) ...]))
+
 ;; A EuroAmount is a positive real number
 ;; Interpretation: A EuroAmount is an amount of money in Euros
 ;; Examples:
 (define EUROAMOUNT1 32)
 (define EUROAMOUNT2 36)
+
+; euro-temp EuroAmount -> ?
+(define (euro-temp euro-amount)
+  (cond [(= euro-amount EUROAMOUNT1) ...]
+        [(= euro-amount EUROAMOUNT2) ...]))
 
 ;; gbp->eur : PoundAmount -> EuroAmount
 ;; Converts GBP to Euros by using the given chart
@@ -53,12 +63,13 @@
 (define YEAR2 2008)
 (define YEAR3 1990)
 (define YEAR4 2000)
+
 ; year-temp -> Year -> ?
 (define (year-temp year)
-  (cond [(string=? year YEAR1) ...]
-        [(string=? year YEAR2) ...]
-        [(string=? year YEAR3) ...]
-        [(string=? year YEAR4) ...]))
+  (cond [(= year YEAR1) ...]
+        [(= year YEAR2) ...]
+        [(= year YEAR3) ...]
+        [(= year YEAR4) ...]))
         
 ; leap-year: Year -> Boolean
 ; Determines if a Year is a leap year or not
@@ -97,13 +108,15 @@
 
 
 ;; Exercise 7, 8, 9, 10 --------------------------------------------------
+
 ; A DSG (DiceShuffleGame) is a (make-dsg MaybeDice MaybeDice MaybeDice)
 (define-struct dsg [left middle right])
 ; and represents the three cups in a dice shuffle game, and what is under them
 
 ; Template:
-(define (dsg-fn dsg)
-  (... (dsg-left) ... (dsg-middle) ... (dsg-right) ...))
+; dsg-temp: DSG -> ?
+(define (dsg-temp dsg)
+  (... (dsg-left dsg) ... (dsg-middle dsg) ... (dsg-right dsg) ...))
 
 ; A MaybeDice is one of:
 ; - #false
@@ -115,10 +128,11 @@
 (define MAYBEDICE-4 4)
 (define MAYBEDICE-10 10)
 
+; Template:
 ; maybeDice-temp: MaybeDice -> ?
 (define (maybeDice-temp maybeDice)
-  (cond [(string=? maybeDice MAYBEDICE-F) ...]
-        [(number? maybeDice MAYBEDICE-4) ...]))
+  (cond [(boolean? maybeDice) ...]
+        [(number? maybeDice) ...]))
 
 ; A Guess is one of:
 ; - "left"
@@ -130,6 +144,7 @@
 (define GUESS-MIDDLE "middle")
 (define GUESS-RIGHT "right")
 
+; Template: 
 ; guess-temp: Guess -> ?
 (define (guess-temp guess)
   (cond [(string=?  guess GUESS-LEFT) ...]
@@ -144,8 +159,8 @@
 (check-expect (shuffle-right (make-dsg MAYBEDICE-F MAYBEDICE-4 MAYBEDICE-10))
               (make-dsg MAYBEDICE-10 MAYBEDICE-F  MAYBEDICE-4))
 
-; cup-value : DSG Guess -> MaybeDice value
-; Outputs the value of the cup at
+; cup-value : DSG Guess -> MaybeDice
+; Outputs the value of the dice in the cup at guess
 (define (cup-value dsg guess)
   (cond [(string=? guess "left") (dsg-left dsg)]
         [(string=? guess "middle") (dsg-middle dsg)]
