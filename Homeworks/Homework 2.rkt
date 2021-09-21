@@ -200,7 +200,7 @@
 ; Template:
 ; height-temp: Height -> ?
 (define (height-temp height)
-  (cond [(number=? height HEIGHT) ...]))
+  (cond [(= height HEIGHT) ...]))
 
 ; A Width is a PositiveNumber;
 ; Interp; The width of the game screen in pixels
@@ -210,7 +210,7 @@
 ; Template:
 ; width-temp Width -> ?
 (define (width-temp width)
-  (cond [(number=? width WIDTH) ...]))
+  (cond [(= width WIDTH) ...]))
 
 ; A UFO is a (make-posn Number Number)
 ; Interp: A (make-posn Number Number) has an x and y coordinate
@@ -223,7 +223,7 @@
 (define (ufo-temp ufo)
   (... (posn-x ufo) ... (posn-y ufo) ...))
 
-(define struct (make-cow x-cord isMovingLeft?))
+(define-struct cow [x-cord isMovingLeft?])
 ; A Cow is a (make-cow Number Boolean)
 ; Interp: A (make-cow Number Boolean) is a cow who move left to right
 ; conntinously until a final game state is reached.
@@ -267,9 +267,9 @@
 (check-expect (move-cow COW2) (make-cow (+ HORIZONTAL-SPEED (cow-x-cord COW2)) #false))
 
 (define (move-cow cow)
-  (cond [(boolean=? cow-isMovingLeft? #true)
+  (cond [(boolean=? (cow-isMovingLeft? cow) #true)
          (make-cow (- HORIZONTAL-SPEED (cow-x-cord cow)) #true)]
-        [(boolean=? cow-isMovingLeft? #false)
+        [(boolean=? (cow-isMovingLeft? cow) #false)
          (make-cow (+ HORIZONTAL-SPEED (cow-x-cord cow)) #false)]))
 
 ; cowOnEdge?: Cow -> Boolean
@@ -278,30 +278,56 @@
 (check-expect (cowOnEdge? COW2) #false)
 
 (define (cowOnEdge? cow)
-  (cond [(or (>= WIDTH (cow-x-cord cow)) (<= (cow-x-cord cow) 0)) #true]
+  (cond [(or (>= (cow-x-cord cow) WIDTH) (<= (cow-x-cord cow) 0)) #true]
         [else #false]))
 
 ; flip-cow: Cow -> Cow
 ; Inverts the value of cow-isGoingLeft?
-(check-expect (flip-cow COW1) (make-cow (cow-x-cord COW1) (not (cow-isGoingLeft? COW1))))
-(check-expect (flip-cow COW2) (make-cow (cow-x-cord COW1) (not (cow-isGoingLeft? COW2))))
+(check-expect (flip-cow COW1) (make-cow (cow-x-cord COW1) (not (cow-isMovingLeft? COW1))))
+(check-expect (flip-cow COW2) (make-cow (cow-x-cord COW2) (not (cow-isMovingLeft? COW2))))
 
 (define (flip-cow cow)
-  (make-cow (cow-x-cord cow) (not (cow-isGoingLeft? cow))))
+  (make-cow (cow-x-cord cow) (not (cow-isMovingLeft? cow))))
 
 ; cow-move-cycle Cow -> Cow
 ; Creates the cow move cycle that will flip the cow when necessary and continuously move the
 ; cow as well
+(check-expect (cow-move-cycle COW1) (flip-cow COW1))
+(check-expect (cow-move-cycle COW2) (move-cow COW2))
 
+(define (cow-move-cycle cow)
+  (cond [(cowOnEdge? cow) (flip-cow cow)]
+        [else (move-cow cow)]))
 
 ; ufo-captured-cow? : UFO Cow -> Boolean
 ; Determines whether or not the UFO has collided with the cow and captured it
+(define COW-Y 5)
+(check-expect (ufo-captured-cow? (make-posn 10 COW-Y) (make-cow 10 #false)) #true)
+(check-expect (ufo-captured-cow? UFO COW1) #false)
+
+(define (ufo-captured-cow? ufo cow)
+  (cond [(and (= (posn-x ufo) (cow-x-cord cow)) (= (posn-y ufo) COW-Y)) #true]
+        [else #false]))
 
 ; ufo-crashed? UFO -> Boolean
 ; Determies whether or not the UFO has collided with the ground
+(check-expect (ufo-crashed? (make-posn 10 HEIGHT)) #true)
+(check-expect (ufo-crashed? UFO) #false)
+
+(define (ufo-crashed? ufo)
+  (cond [(= (posn-y ufo) HEIGHT) #true]
+        [else #false]))
 
 ; game-over? UFO Cow -> Boolean
 ; Runs both the ufo-captured-cow? and ufo-crashed? functions to determine when the game ends
+(check-expect (game-over? (make-posn 10 HEIGHT) COW1) #true)
+(check-expect (game-over? UFO COW1) #false)
+
+(define (game-over? ufo cow)
+  (cond [(or (ufo-captured-cow? ufo cow) (ufo-crashed? ufo)) #true]
+        [else #false]))
+            
+
 
 
               
