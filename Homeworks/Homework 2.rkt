@@ -283,7 +283,25 @@
 
 ; flip-cow: Cow -> Cow
 ; Inverts the value of cow-isGoingLeft?
-(check-expect (flip-cow COW1) (not (cow-isGoingLeft? COW1)))
-(check-expect (flip-cow COW2) (not (cow-isGoingLeft? COW2)))
+(check-expect (flip-cow COW1) (make-cow (cow-x-cord COW1) (not (cow-isGoingLeft? COW1))))
+(check-expect (flip-cow COW2) (make-cow (cow-x-cord COW1) (not (cow-isGoingLeft? COW2))))
+
+(define (flip-cow cow)
+  (make-cow (cow-x-cord cow) (not (cow-isGoingLeft? cow))))
+
+; cow-move-cycle Cow -> Cow
+; Creates the cow move cycle that will flip the cow when necessary and continuously move the
+; cow as well
+
+
+; ufo-captured-cow? : UFO Cow -> Boolean
+; Determines whether or not the UFO has collided with the cow and captured it
+
+; ufo-crashed? UFO -> Boolean
+; Determies whether or not the UFO has collided with the ground
+
+; game-over? UFO Cow -> Boolean
+; Runs both the ufo-captured-cow? and ufo-crashed? functions to determine when the game ends
+
 
               
