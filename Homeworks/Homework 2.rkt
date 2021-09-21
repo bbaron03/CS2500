@@ -225,8 +225,8 @@
 
 (define struct (make-cow x-cord isMovingLeft?))
 ; A Cow is a (make-cow Number Boolean)
-; Interp: A (make-cow Number Boolean) has an x-coordinate represented by a Number and
-; is either moving left or moving right, which is represented by IsMovingLeft?'s boolean value
+; Interp: A (make-cow Number Boolean) is a cow who move left to right
+; conntinously until a final game state is reached.
 
 ; Examples
 (define COW1 (make-cow 0 #true))
