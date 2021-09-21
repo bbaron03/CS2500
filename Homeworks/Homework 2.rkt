@@ -292,16 +292,13 @@
 ; cow-move-cycle Cow -> Cow
 ; Creates the cow move cycle that will flip the cow when its on the edge and continuously move the
 ; cow as well
-<<<<<<< HEAD
-(check-expect (
-=======
+
 (check-expect (cow-move-cycle COW1) (flip-cow COW1))
 (check-expect (cow-move-cycle COW2) (move-cow COW2))
 
 (define (cow-move-cycle cow)
   (cond [(cowOnEdge? cow) (flip-cow cow)]
         [else (move-cow cow)]))
->>>>>>> d422e35c8accaab3d497c836f7b3c1752ae5eb50
 
 ; ufo-captured-cow? : UFO Cow -> Boolean
 ; Determines whether or not the UFO has collided with the cow and captured it
