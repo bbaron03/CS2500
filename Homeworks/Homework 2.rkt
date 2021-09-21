@@ -290,9 +290,9 @@
   (make-cow (cow-x-cord cow) (not (cow-isGoingLeft? cow))))
 
 ; cow-move-cycle Cow -> Cow
-; Creates the cow move cycle that will flip the cow when necessary and continuously move the
+; Creates the cow move cycle that will flip the cow when its on the edge and continuously move the
 ; cow as well
-
+(check-expect (
 
 ; ufo-captured-cow? : UFO Cow -> Boolean
 ; Determines whether or not the UFO has collided with the cow and captured it
