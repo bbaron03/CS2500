@@ -109,15 +109,6 @@
 
 ;; Exercise 7, 8, 9, 10 --------------------------------------------------
 
-; A DSG (DiceShuffleGame) is a (make-dsg MaybeDice MaybeDice MaybeDice)
-(define-struct dsg [left middle right])
-; and represents the three cups in a dice shuffle game, and what is under them
-
-; Template:
-; dsg-temp: DSG -> ?
-(define (dsg-temp dsg)
-  (... (dsg-left dsg) ... (dsg-middle dsg) ... (dsg-right dsg) ...))
-
 ; A MaybeDice is one of:
 ; - #false
 ; - Number
@@ -134,11 +125,24 @@
   (cond [(boolean? maybeDice) ...]
         [(number? maybeDice) ...]))
 
+; A DSG (DiceShuffleGame) is a (make-dsg MaybeDice MaybeDice MaybeDice)
+(define-struct dsg [left middle right])
+; and represents the three cups in a dice shuffle game, and what is under them
+; Examples:
+(define DSG1 (make-dsg #false 2 3))
+(define DSG2 (make-dsg 10 2 20))
+(define DSG3 (make-dsg 5 8 123))
+
+; Template:
+; dsg-temp: DSG -> ?
+(define (dsg-temp dsg)
+  (... (dsg-left dsg) ... (dsg-middle dsg) ... (dsg-right dsg) ...))
+
 ; A Guess is one of:
 ; - "left"
 ; - "middle"
 ; - "right
-
+; and represents the guess of which cup is being selected in the game
 ; Examples:
 (define GUESS-LEFT "left")
 (define GUESS-MIDDLE "middle")
@@ -162,16 +166,124 @@
 ; cup-value : DSG Guess -> MaybeDice
 ; Outputs the value of the dice in the cup at guess
 (define (cup-value dsg guess)
-  (cond [(string=? guess "left") (dsg-left dsg)]
-        [(string=? guess "middle") (dsg-middle dsg)]
-        [(string=? guess "right") (dsg-right dsg)]))
+  (cond [(string=? guess GUESS-LEFT) (dsg-left dsg)]
+        [(string=? guess GUESS-MIDDLE) (dsg-middle dsg)]
+        [(string=? guess GUESS-RIGHT) (dsg-right dsg)]))
 
-(check-expect (cup-value (make-dsg #false 2 3) GUESS-LEFT)
-              #false)
-(check-expect (cup-value (make-dsg #false 2 3) GUESS-MIDDLE)
-              2)
-(check-expect (cup-value (make-dsg 5 8 123) GUESS-RIGHT)
-              123)
+(check-expect (cup-value DSG1 GUESS-LEFT)
+              (dsg-left DSG1))
+(check-expect (cup-value DSG2 GUESS-MIDDLE)
+              (dsg-middle DSG2))
+(check-expect (cup-value DSG3 GUESS-RIGHT)
+              (dsg-right DSG3))
 
+; extra-roll: DSG Number -> DSG
+; Adds the number to each non-empty cup
+(check-expect (extra-roll DSG1 5) (make-dsg #false 7 8))
+(check-expect (extra-roll DSG2 10) (make-dsg 20 12 30))
+(check-expect (extra-roll DSG3 1) (make-dsg 6 9 124))
 
-;; Exercise 11-20 --------------------------------------------------
+(define (extra-roll dsg n)
+  (make-dsg (cond [(boolean? (dsg-left dsg)) (dsg-left dsg)]
+                  [(number? (dsg-left dsg)) (+ n (cup-value dsg GUESS-LEFT))])
+             (cond [(boolean? (dsg-middle dsg)) (dsg-middle dsg)]
+                  [(number? (dsg-middle dsg)) (+ n (cup-value dsg GUESS-MIDDLE))])
+              (cond [(boolean? (dsg-right dsg)) (dsg-right dsg)]
+                  [(number? (dsg-right dsg)) (+ n (cup-value dsg GUESS-RIGHT))])))
+
+;; Exercise 11-20 Cowabunga ------------------------------------------
+; A Height is a PositiveNumber;
+; Interp; The length of the game screen in pixels
+; Example:
+(define HEIGHT 300)
+
+; Template:
+; height-temp: Height -> ?
+(define (height-temp height)
+  (cond [(number=? height HEIGHT) ...]))
+
+; A Width is a PositiveNumber;
+; Interp; The width of the game screen in pixels
+; Example:
+(define WIDTH 100)
+
+; Template:
+; width-temp Width -> ?
+(define (width-temp width)
+  (cond [(number=? width WIDTH) ...]))
+
+; A UFO is a (make-posn Number Number)
+; Interp: A (make-posn Number Number) has an x and y coordinate
+
+; Examples
+(define UFO (make-posn 10 10))
+
+; Template:
+; ufo-temp : UFO -> ?
+(define (ufo-temp ufo)
+  (... (posn-x ufo) ... (posn-y ufo) ...))
+
+(define struct (make-cow x-cord isMovingLeft?))
+; A Cow is a (make-cow Number Boolean)
+; Interp: A (make-cow Number Boolean) has an x-coordinate represented by a Number and
+; is either moving left or moving right, which is represented by IsMovingLeft?'s boolean value
+
+; Examples
+(define COW1 (make-cow 0 #true))
+(define COW2 (make-cow 40 #false))
+
+; Template:
+; cow-temp: Cow -> ?
+(define (cow-temp cow)
+  (... (cow-x-cord) ... (cow-isMovingLeft?)))
+
+; ufo-down: UFO -> UFO
+; Increases a UFO's y value a fixed amount
+(define VERTICAL-SPEED 1)
+
+(check-expect (ufo-down UFO) (make-posn (posn-x UFO) (+ VERTICAL-SPEED (posn-y UFO))))
+
+(define (ufo-down ufo)
+  (make-posn (posn-x UFO) (+ VERTICAL-SPEED (posn-y UFO))))
+
+; ufo-left/right UFO KeyEvent -> UFO
+; Determines which x direction the ufo should go in depending on the arrow pressed by the user
+
+(define HORIZONTAL-SPEED 1)
+(define LEFT "left")
+(define RIGHT "right")
+
+(check-expect (ufo-left/right UFO LEFT) (make-posn (- HORIZONTAL-SPEED (posn-x UFO)) (posn-y UFO)))
+(check-expect (ufo-left/right UFO RIGHT) (make-posn (+ HORIZONTAL-SPEED (posn-x UFO)) (posn-y UFO)))
+
+(define (ufo-left/right ufo key-event)
+  (cond [(string=? key-event LEFT) (make-posn (- HORIZONTAL-SPEED (posn-x ufo)) (posn-y ufo))]
+        [(string=? key-event RIGHT) (make-posn (+ HORIZONTAL-SPEED (posn-x ufo)) (posn-y ufo))]
+        [else (make-posn (posn-x ufo) (posn-y ufo))]))
+
+; move-cow: Cow -> Cow
+; Moves the cow in the direction it is facing
+(check-expect (move-cow COW1) (make-cow (- HORIZONTAL-SPEED (cow-x-cord COW1)) #true))
+(check-expect (move-cow COW2) (make-cow (+ HORIZONTAL-SPEED (cow-x-cord COW2)) #false))
+
+(define (move-cow cow)
+  (cond [(boolean=? cow-isMovingLeft? #true)
+         (make-cow (- HORIZONTAL-SPEED (cow-x-cord cow)) #true)]
+        [(boolean=? cow-isMovingLeft? #false)
+         (make-cow (+ HORIZONTAL-SPEED (cow-x-cord cow)) #false)]))
+
+; cowOnEdge?: Cow -> Boolean
+; Determines if the cow is at the edge of the screen
+(check-expect (cowOnEdge? COW1) #true)
+(check-expect (cowOnEdge? COW2) #false)
+
+(define (cowOnEdge? cow)
+  (cond [(or (>= WIDTH (cow-x-cord cow)) (<= (cow-x-cord cow) 0)) #true]
+        [else #false]))
+
+; flip-cow: Cow -> Cow
+; Inverts the value of cow-isGoingLeft?
+(check-expect (flip-cow COW1) (not (cow-isGoingLeft? COW1)))
+(check-expect (flip-cow COW2) (not (cow-isGoingLeft? COW2)))
+
+              
