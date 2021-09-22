@@ -4,24 +4,22 @@
 ;; A PoundAmount is a postive real number
 ;; Interpretation: A PoundAmount is an amount of money in GBP
 ;; Examples:
-(define POUNDAMOUNT1 45)
-(define POUNDAMOUNT2 50)
+(define pnd1 45)
+(define pnd2 50)
 
 ; pound-temp: PoundAmount -> ?
 (define (pound-temp pound-amount)
-  (cond [(= pound-amount POUNDAMOUNT1) ...]
-        [(= pound-amount POUNDAMOUNT2) ...]))
+  (... pound-amount ...))
 
 ;; A EuroAmount is a positive real number
 ;; Interpretation: A EuroAmount is an amount of money in Euros
 ;; Examples:
-(define EUROAMOUNT1 32)
-(define EUROAMOUNT2 36)
+(define euro1 32)
+(define euro2 36)
 
 ; euro-temp EuroAmount -> ?
 (define (euro-temp euro-amount)
-  (cond [(= euro-amount EUROAMOUNT1) ...]
-        [(= euro-amount EUROAMOUNT2) ...]))
+  (... euro-amount ...))
 
 ;; gbp->eur : PoundAmount -> EuroAmount
 ;; Converts GBP to Euros by using the given chart
@@ -34,24 +32,34 @@
 (check-expect (gbp->eur 20) 12)
 (check-expect (gbp->eur 25) 16)
 (check-expect (gbp->eur 40) 28)
-(check-expect (gbp->eur POUNDAMOUNT1) EUROAMOUNT1)
-(check-expect (gbp->eur POUNDAMOUNT2) EUROAMOUNT2)
+(check-expect (gbp->eur pnd1) euro1)
+(check-expect (gbp->eur pnd2) euro2)
 
 (define (gbp->eur poundAmt)
   (- (* 4/5 poundAmt) 4))
 
 ;; Exercise 4 --------------------------------------------------
 
-; encoding: String -> String
+;;A Word is a string of at least 2 letters and no other types of characters.
+
+; word-temp Word -> ?
+(define (word-temp word)
+  (... word ...))
+
+(define word1 "Northeastern")
+(define word2 "potter")
+(define word3 "brendan")
+
+; encoding: Word -> String
 ; Encodes a string by taking the capital first letter,
 ; the number of letters between the first and last letter,
-; and the capital last letter
-(check-expect (encoding "Northeastern") "N10N")
-(check-expect (encoding "potter") "P4R")
-(check-expect (encoding "brendan") "B5N")
+; and the capital last letter and putting it in a string
+(check-expect (encoding word1) "N10N")
+(check-expect (encoding word2) "P4R")
+(check-expect (encoding word3) "B5N")
 
 (define (encoding word)
-  (string-append (string-upcase (substring word 0 1 ))
+  (string-append (string-upcase (substring word 0 1))
                  (number->string (string-length (substring word 1 (- (string-length word) 1))))
                  (string-upcase (substring word (- (string-length word) 1) (string-length word)))))
 
@@ -59,24 +67,21 @@
 ; A Year is a NaturalNumber
 ; Interpretation: The year that is being tested for being a leap year
 ; Examples
-(define YEAR1 2004)
-(define YEAR2 2008)
-(define YEAR3 1990)
-(define YEAR4 2000)
+(define year1 2004)
+(define year2 2008)
+(define year3 1990)
+(define year4 2000)
 
 ; year-temp -> Year -> ?
 (define (year-temp year)
-  (cond [(= year YEAR1) ...]
-        [(= year YEAR2) ...]
-        [(= year YEAR3) ...]
-        [(= year YEAR4) ...]))
+  (... year ...))
         
 ; leap-year: Year -> Boolean
 ; Determines if a Year is a leap year or not
-(check-expect (leap-year? YEAR1) #true)
-(check-expect (leap-year? YEAR2) #true)
-(check-expect (leap-year? YEAR3) #false)
-(check-expect (leap-year? YEAR4) #true)
+(check-expect (leap-year? year1) #true)
+(check-expect (leap-year? year2) #true)
+(check-expect (leap-year? year3) #false)
+(check-expect (leap-year? year4) #true)
 
 (define (leap-year? year)
   (cond [(= (modulo year 400) 0) #true]
@@ -116,8 +121,8 @@
 
 ; Examples:
 (define MAYBEDICE-F #false)
-(define MAYBEDICE-4 4)
-(define MAYBEDICE-10 10)
+(define mbd-4 4)
+(define mbd-10 10)
 
 ; Template:
 ; maybeDice-temp: MaybeDice -> ?
@@ -129,9 +134,9 @@
 (define-struct dsg [left middle right])
 ; and represents the three cups in a dice shuffle game, and what is under them
 ; Examples:
-(define DSG1 (make-dsg #false 2 3))
-(define DSG2 (make-dsg 10 2 20))
-(define DSG3 (make-dsg 5 8 123))
+(define dsg1 (make-dsg #false 2 3))
+(define dsg2 (make-dsg 10 2 20))
+(define dsg3 (make-dsg 5 8 123))
 
 ; Template:
 ; dsg-temp: DSG -> ?
@@ -160,8 +165,8 @@
 (define (shuffle-right dsg)
   (make-dsg (dsg-right dsg) (dsg-left dsg) (dsg-middle dsg)))
 
-(check-expect (shuffle-right (make-dsg MAYBEDICE-F MAYBEDICE-4 MAYBEDICE-10))
-              (make-dsg MAYBEDICE-10 MAYBEDICE-F  MAYBEDICE-4))
+(check-expect (shuffle-right (make-dsg MAYBEDICE-F mbd-4 mbd-10))
+              (make-dsg mbd-10 MAYBEDICE-F  mbd-4))
 
 ; cup-value : DSG Guess -> MaybeDice
 ; Outputs the value of the dice in the cup at guess
@@ -170,54 +175,41 @@
         [(string=? guess GUESS-MIDDLE) (dsg-middle dsg)]
         [(string=? guess GUESS-RIGHT) (dsg-right dsg)]))
 
-(check-expect (cup-value DSG1 GUESS-LEFT)
-              (dsg-left DSG1))
-(check-expect (cup-value DSG2 GUESS-MIDDLE)
-              (dsg-middle DSG2))
-(check-expect (cup-value DSG3 GUESS-RIGHT)
-              (dsg-right DSG3))
+(check-expect (cup-value dsg1 GUESS-LEFT)
+              (dsg-left dsg1))
+(check-expect (cup-value dsg2 GUESS-MIDDLE)
+              (dsg-middle dsg2))
+(check-expect (cup-value dsg3 GUESS-RIGHT)
+              (dsg-right dsg3))
 
 ; extra-roll: DSG Number -> DSG
 ; Adds the number to each non-empty cup
-(check-expect (extra-roll DSG1 5) (make-dsg #false 7 8))
-(check-expect (extra-roll DSG2 10) (make-dsg 20 12 30))
-(check-expect (extra-roll DSG3 1) (make-dsg 6 9 124))
+(check-expect (extra-roll dsg1 5) (make-dsg #false 7 8))
+(check-expect (extra-roll dsg2 10) (make-dsg 20 12 30))
+(check-expect (extra-roll dsg3 1) (make-dsg 6 9 124))
 
 (define (extra-roll dsg n)
   (make-dsg (cond [(boolean? (dsg-left dsg)) (dsg-left dsg)]
                   [(number? (dsg-left dsg)) (+ n (cup-value dsg GUESS-LEFT))])
-             (cond [(boolean? (dsg-middle dsg)) (dsg-middle dsg)]
+            (cond [(boolean? (dsg-middle dsg)) (dsg-middle dsg)]
                   [(number? (dsg-middle dsg)) (+ n (cup-value dsg GUESS-MIDDLE))])
-              (cond [(boolean? (dsg-right dsg)) (dsg-right dsg)]
+            (cond [(boolean? (dsg-right dsg)) (dsg-right dsg)]
                   [(number? (dsg-right dsg)) (+ n (cup-value dsg GUESS-RIGHT))])))
 
 ;; Exercise 11-20 Cowabunga ------------------------------------------
-; A Height is a PositiveNumber;
-; Interp; The length of the game screen in pixels
-; Example:
+
 (define HEIGHT 300)
-
-; Template:
-; height-temp: Height -> ?
-(define (height-temp height)
-  (cond [(= height HEIGHT) ...]))
-
-; A Width is a PositiveNumber;
-; Interp; The width of the game screen in pixels
-; Example:
 (define WIDTH 100)
 
-; Template:
-; width-temp Width -> ?
-(define (width-temp width)
-  (cond [(= width WIDTH) ...]))
-
 ; A UFO is a (make-posn Number Number)
-; Interp: A (make-posn Number Number) has an x and y coordinate
-
+; Interp: A UFO has an x and y coordinate
+;in left-right top-down coordinate space represented by the posn.
+;In the game, the UFO will have a circular hitbox. The position refers to the center of this circle
+(define UFO-RAD 5)
 ; Examples
-(define UFO (make-posn 10 10))
-
+(define ufo1 (make-posn 10 10))
+(define ufo2 (make-posn 75 (- HEIGHT UFO-RAD)))
+(define ufo3 (make-posn 40 290))
 ; Template:
 ; ufo-temp : UFO -> ?
 (define (ufo-temp ufo)
@@ -225,104 +217,113 @@
 
 (define-struct cow [x-cord isMovingLeft?])
 ; A Cow is a (make-cow Number Boolean)
-; Interp: A (make-cow Number Boolean) is a cow who move left to right
-; conntinously until a final game state is reached.
-
+; Interp: A (make-cow x b) is a cow with the position x, and is moving left
+;if b is #true and right if b is #false
+;In the game, the cow will have a rectangular hitbox.
+;;The position refers to the bottom-left corner of the cow
+(define COW-WIDTH 10)
+(define COW-HEIGHT 5)
 ; Examples
-(define COW1 (make-cow 0 #true))
-(define COW2 (make-cow 40 #false))
+(define cow1 (make-cow 0 #true))
+(define cow2 (make-cow 40 #false))
 
 ; Template:
 ; cow-temp: Cow -> ?
 (define (cow-temp cow)
-  (... (cow-x-cord) ... (cow-isMovingLeft?)))
+  (... (cow-x-cord cow) ... (cow-isMovingLeft? cow ...)))
 
 ; ufo-down: UFO -> UFO
 ; Increases a UFO's y value a fixed amount
 (define VERTICAL-SPEED 1)
 
-(check-expect (ufo-down UFO) (make-posn (posn-x UFO) (+ VERTICAL-SPEED (posn-y UFO))))
+(check-expect (ufo-down ufo1) (make-posn (posn-x ufo1) (+ VERTICAL-SPEED (posn-y ufo1))))
 
 (define (ufo-down ufo)
-  (make-posn (posn-x UFO) (+ VERTICAL-SPEED (posn-y UFO))))
+  (make-posn (posn-x ufo) (+ VERTICAL-SPEED (posn-y ufo))))
 
 ; ufo-left/right UFO KeyEvent -> UFO
 ; Determines which x direction the ufo should go in depending on the arrow pressed by the user
 
-(define HORIZONTAL-SPEED 1)
+(define UFO-HORIZONTAL-SPEED 2)
 (define LEFT "left")
 (define RIGHT "right")
 
-(check-expect (ufo-left/right UFO LEFT) (make-posn (- HORIZONTAL-SPEED (posn-x UFO)) (posn-y UFO)))
-(check-expect (ufo-left/right UFO RIGHT) (make-posn (+ HORIZONTAL-SPEED (posn-x UFO)) (posn-y UFO)))
+(check-expect (ufo-left/right ufo1 LEFT)
+              (make-posn (- UFO-HORIZONTAL-SPEED (posn-x ufo1)) (posn-y ufo1)))
+(check-expect (ufo-left/right ufo1 RIGHT)
+              (make-posn (+ UFO-HORIZONTAL-SPEED (posn-x ufo1)) (posn-y ufo1)))
+(check-expect (ufo-left/right ufo1 "a") ufo1)
 
 (define (ufo-left/right ufo key-event)
-  (cond [(string=? key-event LEFT) (make-posn (- HORIZONTAL-SPEED (posn-x ufo)) (posn-y ufo))]
-        [(string=? key-event RIGHT) (make-posn (+ HORIZONTAL-SPEED (posn-x ufo)) (posn-y ufo))]
+  (cond [(string=? key-event LEFT) (make-posn (- UFO-HORIZONTAL-SPEED (posn-x ufo)) (posn-y ufo))]
+        [(string=? key-event RIGHT) (make-posn (+ UFO-HORIZONTAL-SPEED (posn-x ufo)) (posn-y ufo))]
         [else (make-posn (posn-x ufo) (posn-y ufo))]))
 
 ; move-cow: Cow -> Cow
 ; Moves the cow in the direction it is facing
-(check-expect (move-cow COW1) (make-cow (- HORIZONTAL-SPEED (cow-x-cord COW1)) #true))
-(check-expect (move-cow COW2) (make-cow (+ HORIZONTAL-SPEED (cow-x-cord COW2)) #false))
+(define COW-SPEED 1)
+
+(check-expect (move-cow cow1) (make-cow (- COW-SPEED (cow-x-cord cow1)) #true))
+(check-expect (move-cow cow2) (make-cow (+ COW-SPEED (cow-x-cord cow2)) #false))
 
 (define (move-cow cow)
   (cond [(boolean=? (cow-isMovingLeft? cow) #true)
-         (make-cow (- HORIZONTAL-SPEED (cow-x-cord cow)) #true)]
+         (make-cow (- COW-SPEED (cow-x-cord cow)) #true)]
         [(boolean=? (cow-isMovingLeft? cow) #false)
-         (make-cow (+ HORIZONTAL-SPEED (cow-x-cord cow)) #false)]))
+         (make-cow (+ COW-SPEED (cow-x-cord cow)) #false)]))
 
 ; cowOnEdge?: Cow -> Boolean
 ; Determines if the cow is at the edge of the screen
-(check-expect (cowOnEdge? COW1) #true)
-(check-expect (cowOnEdge? COW2) #false)
+(check-expect (cowOnEdge? cow1) #true)
+(check-expect (cowOnEdge? cow2) #false)
 
 (define (cowOnEdge? cow)
-  (cond [(or (>= (cow-x-cord cow) WIDTH) (<= (cow-x-cord cow) 0)) #true]
+  (cond [(or (>= (cow-x-cord cow) (- WIDTH COW-WIDTH)) (<= (cow-x-cord cow) 0)) #true]
         [else #false]))
 
 ; flip-cow: Cow -> Cow
 ; Inverts the value of cow-isGoingLeft?
-(check-expect (flip-cow COW1) (make-cow (cow-x-cord COW1) (not (cow-isMovingLeft? COW1))))
-(check-expect (flip-cow COW2) (make-cow (cow-x-cord COW2) (not (cow-isMovingLeft? COW2))))
+(check-expect (flip-cow cow1) (make-cow (cow-x-cord cow1) (not (cow-isMovingLeft? cow1))))
+(check-expect (flip-cow cow2) (make-cow (cow-x-cord cow2) (not (cow-isMovingLeft? cow2))))
 
 (define (flip-cow cow)
   (make-cow (cow-x-cord cow) (not (cow-isMovingLeft? cow))))
 
 ; cow-move-cycle Cow -> Cow
-; Creates the cow move cycle that will flip the cow when its on the edge and continuously move the
+; Creates the cow move cycle that will flip the cow when necessary and continuously move the
 ; cow as well
-
-(check-expect (cow-move-cycle COW1) (flip-cow COW1))
-(check-expect (cow-move-cycle COW2) (move-cow COW2))
+(check-expect (cow-move-cycle cow1) (flip-cow cow1))
+(check-expect (cow-move-cycle cow2) (move-cow cow2))
 
 (define (cow-move-cycle cow)
   (cond [(cowOnEdge? cow) (flip-cow cow)]
         [else (move-cow cow)]))
 
 ; ufo-captured-cow? : UFO Cow -> Boolean
-; Determines whether or not the UFO has collided with the cow and captured it
-(define COW-Y 5)
-(check-expect (ufo-captured-cow? (make-posn 10 COW-Y) (make-cow 10 #false)) #true)
-(check-expect (ufo-captured-cow? UFO COW1) #false)
+; Determines whether or not the UFO hitbox has collided with the cow hitbox and captured it
+
+(check-expect (ufo-captured-cow? (make-posn 10 290) (make-cow 10 #false)) #true)
+(check-expect (ufo-captured-cow? ufo1 cow1) #false)
 
 (define (ufo-captured-cow? ufo cow)
-  (cond [(and (= (posn-x ufo) (cow-x-cord cow)) (= (posn-y ufo) COW-Y)) #true]
+  (cond [(and (<= (cow-x-cord cow) (posn-x ufo) (+ (cow-x-cord cow) COW-WIDTH))
+              (= (posn-y ufo) (- HEIGHT (+ UFO-RAD COW-HEIGHT)))) #true]
         [else #false]))
 
 ; ufo-crashed? UFO -> Boolean
-; Determies whether or not the UFO has collided with the ground
-(check-expect (ufo-crashed? (make-posn 10 HEIGHT)) #true)
-(check-expect (ufo-crashed? UFO) #false)
+; Determies whether or not the UFO hitbox has collided with the ground
+(check-expect (ufo-crashed? (make-posn 10 295)) #true)
+(check-expect (ufo-crashed? ufo1) #false)
 
 (define (ufo-crashed? ufo)
-  (cond [(= (posn-y ufo) HEIGHT) #true]
+  (cond [(= (posn-y ufo) (- HEIGHT UFO-RAD)) #true]
         [else #false]))
 
 ; game-over? UFO Cow -> Boolean
 ; Runs both the ufo-captured-cow? and ufo-crashed? functions to determine when the game ends
-(check-expect (game-over? (make-posn 10 HEIGHT) COW1) #true)
-(check-expect (game-over? UFO COW1) #false)
+(check-expect (game-over? ufo3 cow2) #true)
+(check-expect (game-over? ufo2 cow1) #true)
+(check-expect (game-over? ufo1 cow1) #false)
 
 (define (game-over? ufo cow)
   (cond [(or (ufo-captured-cow? ufo cow) (ufo-crashed? ufo)) #true]
