@@ -184,12 +184,12 @@
 (check-expect (world-render world-1)
               (place-image COW-IMAGE (cow-x-cord (world-cow world-1)) (- HEIGHT COW-HEIGHT)
                            (place-image UFO-IMAGE (posn-x (world-ufo world-1))
-                           (posn-y (world-ufo world-1)) BACKGROUND)))
+                                        (posn-y (world-ufo world-1)) BACKGROUND)))
 
 (define (world-render world)
   (place-image COW-IMAGE (cow-x-cord (world-cow world)) (- HEIGHT COW-HEIGHT)
-                           (place-image UFO-IMAGE (posn-x (world-ufo world))
-                           (posn-y (world-ufo world)) BACKGROUND)))
+               (place-image UFO-IMAGE (posn-x (world-ufo world))
+                            (posn-y (world-ufo world)) BACKGROUND)))
 
 ; move-on-tick: World -> World
 ; Moves the UFO and Cow automatically per tick
@@ -206,19 +206,163 @@
 ; cowabunga: World -> World
 ; Starts and runs the cowabunga big-bang game with a given world-state, stops
 ; when the end conditions are met
-
 (define (cowabunga world)
   (big-bang world [on-tick move-on-tick]
-                  [to-draw world-render]
-                  [on-key key-handler]
-                  [stop-when game-over?]))
-
-; Bugs as of Sunday
-; - Cow flashes in and out when moving left
+    [to-draw world-render]
+    [on-key key-handler]
+    [stop-when game-over?]))
 
 ;; Guess My Number
 
-(define goal-number (random 10))
+; A TargetNumber is a whole number between 0 and 9
+; Interp: A TargetNumber is the number
+; a user is trying to guess in a GuessingGame
+
+; Examples
+(define TNUM0 0)
+(define TNUM1 1)
+(define TNUM2 2)
+(define TNUM3 3)
+(define TNUM4 4)
+(define TNUM5 5)
+(define TNUM6 6)
+(define TNUM7 7)
+(define TNUM8 8)
+(define TNUM9 9)
+
+; target-number-temp: TargetNumber -> ?
+(define (target-number-temp target-number)
+  (... target-number ...))
+
+; A MaybeGuess is either a
+; - #false
+; - A number in the range [0,9]
+; Interpretation; A MaybeGuess is #false when the user is yet to make
+; a guess, and a number 0 through 9 inclusive when the user has made a guess
+
+; Examples
+(define M-GUESSF #false)
+(define M-GUESS0 0)
+(define M-GUESS1 1)
+(define M-GUESS2 2)
+(define M-GUESS3 3)
+(define M-GUESS4 4)
+(define M-GUESS5 5)
+(define M-GUESS6 6)
+(define M-GUESS7 7)
+(define M-GUESS8 8)
+(define M-GUESS9 9)
+
+; Template
+; maybe-guess-temp: MaybeGuess -> ?
+(define (maybe-guess-temp maybe-guess)
+  (cond [(false? maybe-guess) ...]
+        [(number? maybe-guess) ...]))
+         
+(define-struct ggame [guess answer count])
+; A GuessingGame is either a
+; - (make-ggame MaybeGuess TargetNumber NaturalNumber)
+; Interp: A (make-ggame g a c) is a round of a guessing game where g is the
+; player's guess of the number, a is the computer's randomly selected correct
+; number, and c is the number of guesses the player made.
+(define ggame0 (make-ggame #false TNUM3 0))
+(define ggame1 (make-ggame M-GUESS0 TNUM0 3))
+(define ggame2 (make-ggame M-GUESS3 TNUM4 1))
+(define ggame3 (make-ggame M-GUESS9 TNUM1 7))
+
+; ggame-temp: GuessingGame -> ?
+(define (ggame-temp ggame)
+  (... (maybe-guess-temp (ggame-guess ggame)) ... (target-number-temp (ggame-answer ggame))
+       ... (ggame-count ggame)))
+
+; play-game: GuessingGame -> GuessingGame
+; Plays the guessing game by asking the player to input
+; a Guess, randomly generating a Guess, and telling the player how their
+; guess relates to the answer. The game stops once the player guesses the right
+; number and the game shows the total guesses
+(define (play-game game)
+  (big-bang (generate game) [on-key key-guess]
+    [to-draw render-game]
+    [stop-when stop-game? final-rend]))
+
+; generate: GuessingGame -> GuessingGame
+; Returns a GuessingGame while completely ignoring the parameter
+; in order to create a new game upon starting the program
+; No check-expects, since impossible to test the randomness
+(define (generate game)
+  (make-ggame #false (random 10) 0))
+
+; key-guess: GuessingGame KeyEvent -> GuessingGame
+; Accepts a single number input from the user and updates the GuessingGame
+; to hold the new MaybeGuess and increases the number of guesses by 1
+(check-expect (key-guess ggame1 "5") (make-ggame M-GUESS5 TNUM0 4))
+(check-expect (key-guess ggame2 "7") (make-ggame M-GUESS7 TNUM4 2))
+(check-expect (key-guess ggame3 "1") (make-ggame M-GUESS1 TNUM1 8))
+
+(define (key-guess ggame keyevent)
+  (make-ggame (string->number keyevent) (ggame-answer ggame) (add1 (ggame-count ggame))))
+
+; render-game: GuessingGame -> Image
+; Displays the game; after a person makes a guess, displays the guess and gives
+; a comparison to the computer's Guess
+(define WDT/HGT 500)
+(define CENTER-X (/ WDT/HGT 2))
+(define CANVAS (place-image (text "Guess!" 50 "lightblue")
+                            CENTER-X 100 (empty-scene WDT/HGT WDT/HGT)))
+
+(check-expect (render-game ggame1) (place-image (text "0" 40 "lightblue") CENTER-X 200
+                                                (place-image (text "You've won!" 50 "lightblue")
+                                                             CENTER-X 250 CANVAS)))
+(check-expect (render-game ggame2) (place-image (text "3" 40 "lightblue") 250 200
+                                                (place-image (text "Nope, higher." 50 "lightblue")
+                                                             CENTER-X 250 CANVAS)))
+(check-expect (render-game ggame3) (place-image (text "9" 40 "lightblue") 250 200
+                                                (place-image (text "Nope, lower." 50 "lightblue")
+                                                             CENTER-X 250 CANVAS)))
+(check-expect (render-game ggame0) CANVAS)
+
+(define (render-game ggame)
+  (cond [(boolean? (ggame-guess ggame)) CANVAS]
+        [else (place-image (text (number->string (ggame-guess ggame)) 40 "lightblue") CENTER-X 200
+                           (place-image (text (comp-str ggame) 50 "lightblue")
+                                        CENTER-X 250 CANVAS))]))
+; comp-str: GuessingGame -> String
+; Returns a string describing whether the player's guess is below the computer
+; guess, above, or has guessed it.
+
+(check-expect (comp-str ggame1) "You've won!")
+(check-expect (comp-str ggame2) "Nope, higher.")
+(check-expect (comp-str ggame3) "Nope, lower.")
+
+(define (comp-str ggame)
+  (cond [(= (ggame-guess ggame) (ggame-answer ggame)) "You've won!"]
+        [(> (ggame-guess ggame) (ggame-answer ggame)) "Nope, lower."]
+        [else "Nope, higher."]))
+
+; stop-game?: GuessingGame -> Boolean
+; Stops the game if the player's Guess is equal to the computer's Guess.
+
+(check-expect (stop-game? ggame1) #true)
+(check-expect (stop-game? ggame2) #false)
+(check-expect (stop-game? ggame3) #false)
+(check-expect (stop-game? ggame0) #false)
+
+(define (stop-game? ggame)
+  (cond [(boolean? (ggame-guess ggame)) #false]
+        [else (= (ggame-guess ggame) (ggame-answer ggame))]))
+
+; final-rend: GuessingGame -> Image
+; Presents the final game screen identical to that of render-game, but also
+; displays the number of guesses taken
+
+(check-expect (final-rend ggame1) (place-image (text "You had 3 guess(es)."
+                                                     40 "lightblue")
+                                               CENTER-X 400 (render-game ggame1)))
+
+(define (final-rend game)
+  (place-image (text (string-append "You had " (number->string (ggame-count game))
+                                    " guess(es).") 40 "lightblue")
+               CENTER-X 400 (render-game game)))
 
 ;; You call that a Pizza?
 
@@ -253,7 +397,7 @@
   (cond [(and (string? pizza) (string=? pizza "red")) "red sauce"]
         [(and (string? pizza) (string=? pizza "no")) "no sauce"]
         [(topping? pizza) (string-append (topping-name pizza) " and "
-                          (describe (topping-more pizza)))]))
+                                         (describe (topping-more pizza)))]))
 
 ; header: Pizza -> String
 ; Combines the first part of the description sentence with the part that describe creates,
@@ -285,7 +429,7 @@
 ; building-temp: Building -> ?
 (define (building-temp building)
   (... cond [(string? building) ...]
-        [(story? building) ... (building-temp (story-below building)) ...]))
+       [(story? building) ... (building-temp (story-below building)) ...]))
 
 ; sum-rooms : Building -> PosInt
 ; Computes the total sum of the rooms in the building
@@ -300,16 +444,34 @@
 
 ; draw-building : Building -> Image
 ; Draws a given building and all of its stories
-(define BUILD-WIDTH 20)
+(define BUILD-WIDTH 50)
 (check-expect (draw-building building1) empty-image)
 (check-expect (draw-building building2)
-              (above (frame (rectangle BUILD-WIDTH 20  "solid" "red")) empty-image))
+              (draw-rooms building2 (story-rooms building2)))
 (check-expect (draw-building building3)
-              (above (frame (rectangle BUILD-WIDTH 40 "solid" "orange")) 
-                     (above (frame (rectangle BUILD-WIDTH 20 "solid" "red")) empty-image)))
+              (above (draw-rooms building3 (story-rooms building3))
+                     (draw-building (story-below building3))))
 
 (define (draw-building building)
   (cond [(string? building) empty-image]
         [(story? building)
-         (above (frame (rectangle BUILD-WIDTH (story-height building) "solid" (story-color building)))
+         (above (draw-rooms building (story-rooms building))
                 (draw-building (story-below building)))]))
+
+; draw-rooms: (make-story Number PosInt String Building) PosInt -> Image
+; Draws the rooms for use in draw-building and uses the original room count
+; to determine each subsequent room size
+(define (draw-rooms story original-count)
+  (cond [(zero? (story-rooms story)) empty-image]
+        [(positive? (story-rooms story))
+         (beside (frame
+                  (rectangle (/ BUILD-WIDTH original-count)
+                             (story-height story)
+                             "solid"
+                             (story-color story)))
+                 (draw-rooms
+                  (make-story (story-height story)
+                              (sub1 (story-rooms story))
+                              (story-color story)
+                              (story-below story))
+                  original-count))]))
