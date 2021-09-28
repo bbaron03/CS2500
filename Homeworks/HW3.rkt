@@ -19,7 +19,7 @@
 (define COW-HEIGHT 5)
 
 ; Examples
-(define cow1 (make-cow 0 #true))
+(define cow1 (make-cow (/ COW-WIDTH 2) #true))
 (define cow2 (make-cow 40 #false))
 (define cow3 (make-cow 50 #true))
 
@@ -75,12 +75,12 @@
 ; Moves the cow in the direction it is facing
 (define COW-SPEED 1)
 
-(check-expect (move-cow cow1) (make-cow (- COW-SPEED (cow-x-cord cow1)) #true))
+(check-expect (move-cow cow1) (make-cow (- (cow-x-cord cow1) COW-SPEED) #true))
 (check-expect (move-cow cow2) (make-cow (+ COW-SPEED (cow-x-cord cow2)) #false))
 
 (define (move-cow cow)
   (cond [(cow-isMovingLeft? cow)
-         (make-cow (- COW-SPEED (cow-x-cord cow)) #true)]
+         (make-cow (- (cow-x-cord cow) COW-SPEED) #true)]
         [else (make-cow (+ COW-SPEED (cow-x-cord cow)) #false)]))
 
 ; cowOnEdge?: Cow -> Boolean
@@ -89,7 +89,7 @@
 (check-expect (cowOnEdge? cow2) #false)
 
 (define (cowOnEdge? cow)
-  (or (>= (cow-x-cord cow) (- WIDTH COW-WIDTH)) (<= (cow-x-cord cow) 0)))
+  (or (= (cow-x-cord cow) (- WIDTH (/ COW-WIDTH 2))) (= (cow-x-cord cow) (/ COW-WIDTH 2))))
 
 ; flip-cow: Cow -> Cow
 ; Inverts the value of cow-isGoingLeft?
@@ -106,8 +106,7 @@
 (check-expect (cow-move-cycle cow2) (move-cow cow2))
 
 (define (cow-move-cycle cow)
-  (cond [(cowOnEdge? cow) (move-cow (flip-cow cow))]
-        [else (move-cow cow)]))
+  (if (cowOnEdge? cow) (move-cow (flip-cow cow)) (move-cow cow)))
 
 ; ufo-captured-cow? : UFO Cow -> Boolean
 ; Determines whether or not the UFO hitbox has collided with the cow hitbox and captured it
@@ -154,7 +153,8 @@
 
 (define (game-over? world)
   (or (ufo-captured-cow? (world-ufo world)
-                          (world-cow world)) (ufo-crashed? (world-ufo world))))
+                         (world-cow world))
+      (ufo-crashed? (world-ufo world))))
 
 ; key-handler: World KeyEvent -> World
 ; Determines the next location of a UFO given a certain KeyEvent
@@ -237,17 +237,17 @@
 
 ;Template
 ; pizza-temp: Pizza -> ?
-(define (pizza-temp pizza)
-  (... cond [(and (string? pizza) (string=? pizza "red")) ...]
-        [(and (string? pizza) (string=? pizza "no")) ...]
-        [(topping? pizza) ... (pizza-temp (topping-more pizza)) ...]))
+#;(define (pizza-temp pizza)
+    (cond [(and (string? pizza) (string=? pizza "red")) ...]
+          [(and (string? pizza) (string=? pizza "no")) ...]
+          [(topping? pizza) ... (pizza-temp (topping-more pizza)) ...]))
 
 ; describe: Pizza -> String
 ; Outputs all of the toppings on a given pizza
-(check-expect (header pizza1) "This pizza has red sauce")
-(check-expect (header pizza2) "This pizza has no sauce")
-(check-expect (header pizza3) "This pizza has salami and no sauce")
-(check-expect (header pizza4) "This pizza has bacon and salami and no sauce")
+(check-expect (describe pizza1) "red sauce")
+(check-expect (describe pizza2) "no sauce")
+(check-expect (describe pizza3) "salami and no sauce")
+(check-expect (describe pizza4) "bacon and salami and no sauce")
 
 (define (describe pizza)
   (cond [(and (string? pizza) (string=? pizza "red")) "red sauce"]
@@ -255,7 +255,14 @@
         [(topping? pizza) (string-append (topping-name pizza) " and "
                           (describe (topping-more pizza)))]))
 
-; header
+; header: Pizza -> String
+; Combines the first part of the description sentence with the part that describe creates,
+; which is the toppings and the sauce on given pizza
+(check-expect (header pizza1) "This pizza has red sauce")
+(check-expect (header pizza2) "This pizza has no sauce")
+(check-expect (header pizza3) "This pizza has salami and no sauce")
+(check-expect (header pizza4) "This pizza has bacon and salami and no sauce")
+
 (define (header pizza)
   (string-append "This pizza has " (describe pizza)))
 
