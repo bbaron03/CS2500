@@ -40,6 +40,9 @@
 
 ;; Exercise 4 --------------------------------------------------
 
+<<<<<<< HEAD
+; encoding: String -> String ; 
+=======
 ;;A Word is a string of at least 2 letters and no other types of characters.
 
 ; word-temp Word -> ?
@@ -51,6 +54,7 @@
 (define word3 "brendan")
 
 ; encoding: Word -> String
+>>>>>>> 45305c1e68d888d147add0a5acca92f7ccab68a4
 ; Encodes a string by taking the capital first letter,
 ; the number of letters between the first and last letter,
 ; and the capital last letter and putting it in a string
@@ -197,6 +201,13 @@
                   [(number? (dsg-right dsg)) (+ n (cup-value dsg GUESS-RIGHT))])))
 
 ;; Exercise 11-20 Cowabunga ------------------------------------------
+<<<<<<< HEAD
+; A Height is a PositiveNumber;
+; Interp: The length of the game screen in pixels
+; Example:
+(define HEIGHT 300)
+=======
+>>>>>>> 45305c1e68d888d147add0a5acca92f7ccab68a4
 
 (define HEIGHT 300)
 (define WIDTH 100)
@@ -241,7 +252,7 @@
 (define (ufo-down ufo)
   (make-posn (posn-x ufo) (+ VERTICAL-SPEED (posn-y ufo))))
 
-; ufo-left/right UFO KeyEvent -> UFO
+; ufo-left/right : UFO KeyEvent -> UFO
 ; Determines which x direction the ufo should go in depending on the arrow pressed by the user
 
 (define UFO-HORIZONTAL-SPEED 2)
@@ -259,7 +270,7 @@
         [(string=? key-event RIGHT) (make-posn (+ UFO-HORIZONTAL-SPEED (posn-x ufo)) (posn-y ufo))]
         [else (make-posn (posn-x ufo) (posn-y ufo))]))
 
-; move-cow: Cow -> Cow
+; move-cow : Cow -> Cow
 ; Moves the cow in the direction it is facing
 (define COW-SPEED 1)
 
@@ -272,7 +283,7 @@
         [(boolean=? (cow-isMovingLeft? cow) #false)
          (make-cow (+ COW-SPEED (cow-x-cord cow)) #false)]))
 
-; cowOnEdge?: Cow -> Boolean
+; cowOnEdge? : Cow -> Boolean
 ; Determines if the cow is at the edge of the screen
 (check-expect (cowOnEdge? cow1) #true)
 (check-expect (cowOnEdge? cow2) #false)
@@ -281,7 +292,7 @@
   (cond [(or (>= (cow-x-cord cow) (- WIDTH COW-WIDTH)) (<= (cow-x-cord cow) 0)) #true]
         [else #false]))
 
-; flip-cow: Cow -> Cow
+; flip-cow : Cow -> Cow
 ; Inverts the value of cow-isGoingLeft?
 (check-expect (flip-cow cow1) (make-cow (cow-x-cord cow1) (not (cow-isMovingLeft? cow1))))
 (check-expect (flip-cow cow2) (make-cow (cow-x-cord cow2) (not (cow-isMovingLeft? cow2))))
@@ -289,7 +300,7 @@
 (define (flip-cow cow)
   (make-cow (cow-x-cord cow) (not (cow-isMovingLeft? cow))))
 
-; cow-move-cycle Cow -> Cow
+; cow-move-cycle : Cow -> Cow
 ; Creates the cow move cycle that will flip the cow when necessary and continuously move the
 ; cow as well
 (check-expect (cow-move-cycle cow1) (flip-cow cow1))
@@ -310,16 +321,23 @@
               (= (posn-y ufo) (- HEIGHT (+ UFO-RAD COW-HEIGHT)))) #true]
         [else #false]))
 
+<<<<<<< HEAD
+; ufo-crashed? : UFO -> Boolean
+; Determies whether or not the UFO has collided with the ground
+(check-expect (ufo-crashed? (make-posn 10 HEIGHT)) #true)
+(check-expect (ufo-crashed? UFO) #false)
+=======
 ; ufo-crashed? UFO -> Boolean
 ; Determies whether or not the UFO hitbox has collided with the ground
 (check-expect (ufo-crashed? (make-posn 10 295)) #true)
 (check-expect (ufo-crashed? ufo1) #false)
+>>>>>>> 45305c1e68d888d147add0a5acca92f7ccab68a4
 
 (define (ufo-crashed? ufo)
   (cond [(= (posn-y ufo) (- HEIGHT UFO-RAD)) #true]
         [else #false]))
 
-; game-over? UFO Cow -> Boolean
+; game-over? : UFO Cow -> Boolean 
 ; Runs both the ufo-captured-cow? and ufo-crashed? functions to determine when the game ends
 (check-expect (game-over? ufo3 cow2) #true)
 (check-expect (game-over? ufo2 cow1) #true)
