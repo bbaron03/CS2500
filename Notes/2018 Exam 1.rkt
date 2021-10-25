@@ -70,6 +70,7 @@
 (check-expect (any-bad-donors? loc1) #false)
 (check-expect (any-bad-donors? (list contrib2 contrib2)) #true)
 (check-expect (any-bad-donors? loc2) #false)
+(check-expect (any-bad-donors? loc4) #true)
 
 (define (any-bad-donors? loc)
   (cond [(empty? loc) #f]
@@ -78,10 +79,11 @@
 
 ; bad-donor? : Contrib [List-of Contrib] -> Boolean
 ; Is the donor's total donation more than 2700?
-(check-expect (bad-donor? contrib2 loc2) #false)
+(check-expect (bad-donor? contrib2 loc2) #true)
 (check-expect (bad-donor? contrib5 '()) #true)
 (check-expect (bad-donor? contrib2 (list contrib2 contrib2)) #true)
 (check-expect (bad-donor? contrib3 (list contrib2 contrib3)) #false)
+(check-expect (bad-donor? (make-contrib "NotaDonor" 15) loc4) #false)
 
 (define (bad-donor? contrib loc)
   (local [; sum-donor-contribs : [List-of Contrib] String -> Number
@@ -98,7 +100,8 @@
                   [(contrib? c) (if (string=? (contrib-donor c) donor)
                                     (contrib-amount c) 0)]))]
     (cond [(number? contrib) #false]
-          [(contrib? contrib) (> (sum-donor-contribs loc (contrib-donor contrib)) 2700)])))  
+          [(contrib? contrib) (> (+ (contrib-amount contrib)
+                                    (sum-donor-contribs loc (contrib-donor contrib))) 2700)])))  
 
 
 ; map : {X Y} [X -> Y] [List-of X] -> [List-of Y]
