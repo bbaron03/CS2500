@@ -1,0 +1,123 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname Lab7) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require 2htdp/image)
+; A Ball is a (make-ball Nat Mode Color [Nat -> Posn])
+(define-struct ball [r mode color placement])
+; INTERPRETATION:
+; - r is the ball's radius
+; - mode is the ball's mode
+; - color is the ball's color
+; - placement is a function that, given the current time,
+;   outputs a new coordinate for the ball to be drawn at
+ 
+; A Mode is one of:
+; - "solid"
+; - "outline"
+ 
+(define BALL-1 (make-ball 3 "solid" "red" (λ (x) (make-posn 5 x))))
+(define BALL-2 (make-ball 3 "solid" "blue" (λ (x) (make-posn (+ x 2) 3))))
+
+; A BallWorld is a (make-ball-world Nat [List-of Ball])
+(define-struct ball-world [t balls])
+; - where t is the amount of time that has passed
+; - and balls is the balls of the world
+ 
+(define WORLD-1 (make-ball-world 0 '()))
+(define WORLD-2 (make-ball-world 10 (list BALL-1 BALL-2)))
+  
+; main : [List-of Ball] -> World
+; Run the game with this list of initial balls
+#;(define (main init-list)
+    (big-bang (make-ball-world 0 init-list)
+      [on-tick (λ (bw) (make-ball-world (add1 (ball-world-t bw))
+                                        (ball-world-balls bw)))]
+      [to-draw draw]
+      [on-mouse place-ball]))
+ 
+(define WIDTH 500)
+(define HEIGHT 500)
+(define BG (empty-scene WIDTH HEIGHT))
+
+; draw-ball : Ball Posn Image -> Image
+; Draws a ball on an Image
+(check-expect (draw-ball BALL-1 ((ball-placement BALL-1) 5) BG)
+              (place-image (circle (ball-r BALL-1) (ball-mode BALL-1) (ball-color BALL-1))
+                           5 5 BG))
+(check-expect (draw-ball BALL-2 ((ball-placement BALL-2) 3) BG)
+              (place-image (circle (ball-r BALL-2) (ball-mode BALL-2) (ball-color BALL-2))
+                           5 3 BG))
+
+(define (draw-ball ball posn img)
+  (local [(define BALL-IMG (circle (ball-r ball) (ball-mode ball) (ball-color ball)))]
+    (place-image BALL-IMG (posn-x posn) (posn-y posn) img)))
+
+; make-drawer: Ball Number Image -> Image
+; Draws the ball on an image at a given time
+(check-expect (make-drawer BALL-1 10 BG)
+              (place-image (circle (ball-r BALL-1) (ball-mode BALL-1) (ball-color BALL-1))
+                           5 10 BG))
+(check-expect (make-drawer BALL-2 10 BG)
+              (place-image (circle (ball-r BALL-2) (ball-mode BALL-2) (ball-color BALL-2))
+                           12 3 BG))
+
+(define (make-drawer ball t img)
+  (draw-ball ball ((ball-placement ball) t) img))
+
+; draw: BallWorld -> Image
+; Draws the ball world
+(check-expect (draw WORLD-1) BG)
+(check-expect (draw WORLD-2)
+              (place-image (circle (ball-r BALL-1) (ball-mode BALL-1) (ball-color BALL-1)) 5 10
+                           (place-image (circle (ball-r BALL-2)
+                                                (ball-mode BALL-2)
+                                                (ball-color BALL-2)) 12 3 BG)))
+
+(define (draw ball-world)
+  (local [; make-drawer/ball: Ball Image -> Image
+          ; Draws a ball on a given image
+          (define (make-drawer/ball b img)
+            (make-drawer b (ball-world-t ball-world) img))]
+    (foldr make-drawer/ball BG (ball-world-balls ball-world))))
+
+; A BallGenerator is a [Nat Nat Nat -> [Nat -> Posn]]
+; Given the time, x-coordinate, and y-coordinate of when and where a
+; ball is created, create a function that, given the current time of
+; the world, will output a Posn
+ 
+; Example:
+; move-horizontally : BallGenerator
+(define (move-horizontally t0 x0 y0)
+  (λ (t) (make-posn (modulo (+ x0 (- t t0)) WIDTH) y0)))
+(check-expect ((move-horizontally 3 5 8) 10) ; 7 seconds have passed
+              (make-posn 12 8))
+
+; move-vertically : BallGenerator
+; Creates a BallGenerator which wraps around the screen moving downwards in a straight line
+(define (move-vertically t0 x0 y0)
+  (λ (t) (make-posn x0 (modulo (+ y0 (- t t0)) HEIGHT))))
+(check-expect ((move-vertically 3 5 8) 10) ; 7 seconds have passed
+              (make-posn 5 15))
+(check-expect ((move-vertically 5 9 25) 28)
+              (make-posn 9 48))
+
+(define GENERATORS (list move-horizontally move-vertically))
+
+; place-ball: BallWorld Number Number MouseEvent -> BallWorld
+; Places a new ball in the BallWorld if a user clicks
+
+(define (place-ball world x y mouse)
+  (local [(define CURR-TIME (ball-world-t world))
+          (define newball (make-ball 10 "solid" "lightblue" (move-horizontally CURR-TIME x y)))]
+    (if (string=? mouse "button-down")
+        (make-ball-world CURR-TIME (cons newball (ball-world-balls world)))
+        world)))
+
+(check-expect (draw (place-ball WORLD-1 10 10 "button-down"))
+              (draw (make-ball-world 0 (list (make-ball 10
+                                                        "solid"
+                                                        "lightblue"
+                                                        (move-horizontally 0 10 10))))))
+(check-expect (draw (place-ball WORLD-1 10 10 "move"))
+              (draw WORLD-1))
+
